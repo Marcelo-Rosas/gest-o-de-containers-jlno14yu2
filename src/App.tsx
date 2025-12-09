@@ -14,7 +14,6 @@ import Layout from './components/Layout'
 import { AuthProvider } from '@/stores/useAuthStore'
 import useAuthStore from '@/stores/useAuthStore'
 
-// Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuthStore()
 
@@ -29,7 +28,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>
 }
 
-// Admin Route Wrapper
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuthStore()
 

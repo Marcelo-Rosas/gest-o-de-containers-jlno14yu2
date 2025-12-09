@@ -1,4 +1,3 @@
-/* Login Page */
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
@@ -53,7 +52,6 @@ export default function Index() {
     try {
       await login(data.email, data.password)
       toast.success('Login realizado com sucesso! Redirecionando...')
-      // Navigation happens in useEffect
     } catch (error: any) {
       toast.error('Falha na autenticação', {
         description: error.message || 'Verifique suas credenciais.',
