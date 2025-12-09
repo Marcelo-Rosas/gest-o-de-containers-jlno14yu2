@@ -91,5 +91,12 @@ export const api = {
         body: JSON.stringify(data),
         headers: { Prefer: 'return=representation' },
       }),
+
+    delete: <T>(table: string, query: string, token: string) =>
+      supabaseFetch<T>(`/rest/v1/${table}?${query}`, {
+        token,
+        method: 'DELETE',
+        headers: { Prefer: 'return=representation' },
+      }),
   },
 }
