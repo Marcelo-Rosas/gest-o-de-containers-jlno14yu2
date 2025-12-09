@@ -42,8 +42,10 @@ export default function ForgotPassword() {
   const onSubmit = async (data: ForgotPasswordForm) => {
     setIsLoading(true)
     try {
+      const redirectUrl = `${window.location.origin}/redefinir-senha`
+
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: 'https://container-storage.goskip.app/redefinir-senha',
+        redirectTo: redirectUrl,
       })
 
       if (error) {

@@ -45,17 +45,23 @@ export default function ResetPassword() {
   useEffect(() => {
     // Check if we have a valid session (Supabase handles URL hash parsing automatically)
     const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session) {
-        toast.error('Link inválido ou expirado', {
-          description:
-            'Por favor, solicite um novo link de recuperação de senha.',
-        })
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+        if (!session) {
+          toast.error('Link inválido ou expirado', {
+            description:
+              'Por favor, solicite um novo link de recuperação de senha.',
+          })
+          navigate('/recuperar-senha')
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
         navigate('/recuperar-senha')
+      } finally {
+        setCheckingSession(false)
       }
-      setCheckingSession(false)
     }
 
     checkSession()
@@ -78,18 +84,22 @@ export default function ResetPassword() {
       } = await supabase.auth.getSession()
 
       if (session) {
+        // Automatically log the user in by updating the store
         setSession(session.access_token)
+
         toast.success('Senha redefinida com sucesso!', {
           description: 'Você será redirecionado para o dashboard.',
         })
+
+        // The isLoading state in AuthProvider will handle the protection
+        // This ensures seamless transition
         navigate('/dashboard')
       } else {
+        // Fallback if session is lost
         toast.success('Senha redefinida com sucesso!', {
-          description: 'Você será redirecionado para a página de login.',
+          description: 'Por favor, faça login com sua nova senha.',
         })
-        setTimeout(() => {
-          navigate('/')
-        }, 2000)
+        navigate('/')
       }
     } catch (error: any) {
       console.error('Update password error:', error)

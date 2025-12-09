@@ -32,15 +32,15 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>
 
 export default function Index() {
-  const { login, user } = useAuthStore()
+  const { login, user, isLoading: authLoading } = useAuthStore()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (user) {
+    if (!authLoading && user) {
       navigate('/dashboard')
     }
-  }, [user, navigate])
+  }, [user, authLoading, navigate])
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -48,17 +48,25 @@ export default function Index() {
   })
 
   const onSubmit = async (data: LoginForm) => {
-    setIsLoading(true)
+    setIsSubmitting(true)
     try {
       await login(data.email, data.password)
       toast.success('Login realizado com sucesso! Redirecionando...')
+      // Navigation will be handled by useEffect when user state updates
     } catch (error: any) {
       toast.error('Falha na autenticação', {
         description: error.message || 'Verifique suas credenciais.',
       })
-    } finally {
-      setIsLoading(false)
+      setIsSubmitting(false)
     }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
   }
 
   return (
@@ -122,8 +130,8 @@ export default function Index() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   'Entrar'
