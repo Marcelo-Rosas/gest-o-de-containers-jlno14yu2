@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { Edit, UserX, UserCheck, Loader2, Ban } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -121,7 +121,7 @@ export default function Users() {
     },
   })
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     if (!token) return
     setIsLoading(true)
     try {
@@ -137,9 +137,9 @@ export default function Users() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [token])
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     if (!token) return
     try {
       const data = await api.db.select<Client>(
@@ -151,12 +151,12 @@ export default function Users() {
     } catch (error) {
       console.error('Failed to fetch clients', error)
     }
-  }
+  }, [token])
 
   useEffect(() => {
     fetchUsers()
     fetchClients()
-  }, [token])
+  }, [fetchUsers, fetchClients])
 
   useEffect(() => {
     if (editingUser) {
