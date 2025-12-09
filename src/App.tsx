@@ -6,6 +6,7 @@ import Index from './pages/Index'
 import Dashboard from './pages/Dashboard'
 import Containers from './pages/Containers'
 import ContainerDetails from './pages/ContainerDetails'
+import AdminUsers from './pages/admin/Users'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
 import { AuthProvider } from '@/stores/useAuthStore'
@@ -22,6 +23,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     )
   if (!user) return <Navigate to="/" replace />
+
+  return <>{children}</>
+}
+
+// Admin Route Wrapper
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuthStore()
+
+  if (isLoading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Carregando...
+      </div>
+    )
+  if (!user) return <Navigate to="/" replace />
+  if (user.role !== 'admin') return <Navigate to="/dashboard" replace />
 
   return <>{children}</>
 }
@@ -59,6 +76,14 @@ const App = () => (
                 <ProtectedRoute>
                   <ContainerDetails />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/usuarios"
+              element={
+                <AdminRoute>
+                  <AdminUsers />
+                </AdminRoute>
               }
             />
           </Route>

@@ -2,7 +2,14 @@ import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
-import { Menu, Package, LayoutDashboard, LogOut, User } from 'lucide-react'
+import {
+  Menu,
+  Package,
+  LayoutDashboard,
+  LogOut,
+  User,
+  Users,
+} from 'lucide-react'
 import useAuthStore from '@/stores/useAuthStore'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +22,10 @@ export default function Layout() {
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/containers', label: 'Contêineres', icon: Package },
   ]
+
+  if (user?.role === 'admin') {
+    links.push({ href: '/admin/usuarios', label: 'Usuários', icon: Users })
+  }
 
   const NavContent = () => (
     <div className="flex flex-col h-full gap-4">
