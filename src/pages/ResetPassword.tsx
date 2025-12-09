@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/form'
 import { Loader2, Lock } from 'lucide-react'
 import { toast } from 'sonner'
+import useAuthStore from '@/stores/useAuthStore'
 
 const resetPasswordSchema = z
   .object({
@@ -32,6 +33,7 @@ type ResetPasswordForm = z.infer<typeof resetPasswordSchema>
 
 export default function ResetPassword() {
   const navigate = useNavigate()
+  const { setSession } = useAuthStore()
   const [isLoading, setIsLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
 
@@ -70,16 +72,25 @@ export default function ResetPassword() {
         throw error
       }
 
-      toast.success('Senha redefinida com sucesso!', {
-        description: 'Você será redirecionado para a página de login.',
-      })
+      // Check if session is still valid and get the token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
 
-      // Force logout to ensure clean state for useAuthStore login flow
-      await supabase.auth.signOut()
-
-      setTimeout(() => {
-        navigate('/')
-      }, 2000)
+      if (session) {
+        setSession(session.access_token)
+        toast.success('Senha redefinida com sucesso!', {
+          description: 'Você será redirecionado para o dashboard.',
+        })
+        navigate('/dashboard')
+      } else {
+        toast.success('Senha redefinida com sucesso!', {
+          description: 'Você será redirecionado para a página de login.',
+        })
+        setTimeout(() => {
+          navigate('/')
+        }, 2000)
+      }
     } catch (error: any) {
       console.error('Update password error:', error)
       toast.error('Erro ao redefinir senha', {

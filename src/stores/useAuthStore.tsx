@@ -15,6 +15,7 @@ interface AuthContextType {
   isLoading: boolean
   login: (email: string, pass: string) => Promise<void>
   logout: () => void
+  setSession: (token: string) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -67,14 +68,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth()
   }, [token])
 
+  const setSession = (accessToken: string) => {
+    localStorage.setItem('sb_token', accessToken)
+    setToken(accessToken)
+    setIsLoading(true)
+  }
+
   const login = async (email: string, pass: string) => {
     setIsLoading(true)
     try {
       const data = await api.auth.signIn(email, pass)
-      localStorage.setItem('sb_token', data.access_token)
-      setToken(data.access_token)
-    } finally {
+      setSession(data.access_token)
+    } catch (error) {
       setIsLoading(false)
+      throw error
     }
   }
 
@@ -82,11 +89,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem('sb_token')
     setToken(null)
     setUser(null)
+    setIsLoading(false)
   }
 
   return React.createElement(
     AuthContext.Provider,
-    { value: { user, token, isLoading, login, logout } },
+    { value: { user, token, isLoading, login, logout, setSession } },
     children,
   )
 }
